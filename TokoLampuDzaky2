@@ -1,0 +1,233 @@
+import os
+import datetime
+from prettytable import PrettyTable
+import getpass
+
+class NodeLampu:
+    def __init__(self, id_lampu, nama_lampu, harga, stok, next=None):
+        self.id_lampu = id_lampu
+        self.nama_lampu = nama_lampu
+        self.harga = harga
+        self.stok = stok
+        self.next = next
+
+class LinkedListLampu:
+    def __init__(self):
+        self.head = None
+
+    def tambah_lampu(self, id_lampu, nama_lampu, harga, stok):
+        new_node = NodeLampu(id_lampu, nama_lampu, harga, stok)
+        if self.head is None:
+            self.head = new_node
+            return
+        last = self.head
+        while last.next:
+            last = last.next
+        last.next = new_node
+
+    def hapus_lampu(self, id_lampu):
+        temp = self.head
+        if temp is not None:
+            if temp.id_lampu == id_lampu:
+                self.head = temp.next
+                temp = None
+                return
+        while temp is not None:
+            if temp.id_lampu == id_lampu:
+                break
+            prev = temp
+            temp = temp.next
+        if temp == None:
+            return
+        prev.next = temp.next
+        temp = None
+
+    def edit_lampu(self, id_lampu, nama_lampu, harga, stok):
+        temp = self.head
+        while temp is not None:
+            if temp.id_lampu == id_lampu:
+                temp.nama_lampu = nama_lampu
+                temp.harga = harga
+                temp.stok = stok
+                break
+            temp = temp.next
+
+    def tampilkan_lampu(self):
+        temp = self.head
+        x = PrettyTable()
+        x.field_names = ["ID Lampu", "Nama Lampu", "Harga", "Stok"]
+        while temp is not None:
+            x.add_row([temp.id_lampu, temp.nama_lampu, format(temp.harga, ','), temp.stok])
+            temp = temp.next
+        print(x)
+
+class Pelanggan:
+    def __init__(self):
+        self.saldo = 300000
+
+    def beli_lampu(self, lampu_beli):
+        total_harga = 0
+        tabel_pembelian = PrettyTable()
+        tabel_pembelian.field_names = ["ID Lampu", "Nama Lampu", "Jumlah", "Harga Satuan", "Total Harga"]
+
+        for id_lampu, jumlah in lampu_beli.items():
+            temp = lampu.head
+            while temp is not None:
+                if temp.id_lampu == id_lampu:
+                    if temp.stok >= jumlah:
+                        harga_total = temp.harga * jumlah
+                        total_harga += harga_total
+                        tabel_pembelian.add_row([id_lampu, temp.nama_lampu, jumlah, format(temp.harga, ','), format(harga_total, ',')])
+                    else:
+                        print(f"Stok lampu {temp.nama_lampu} tidak cukup")
+                        return
+                temp = temp.next
+
+        os.system("cls")    
+        print("Lampu yang akan dibeli:")
+        print(tabel_pembelian)
+        if total_harga >= 100000:
+            total_harga -= total_harga * 0.1
+            total_harga = int(total_harga)
+            print("Anda dapat diskon 10%")
+        print("Total Harga: Rp", format(total_harga, ','))
+
+        if self.saldo >= total_harga:
+            konfirmasi = input("Apakah Anda Yakin Ingin Membeli Lampu Ini? (y/n): ")
+            if konfirmasi == "y":
+                for id_lampu, jumlah in lampu_beli.items():
+                    temp = lampu.head
+                    while temp is not None:
+                        if temp.id_lampu == id_lampu:
+                            temp.stok -= jumlah
+                            break
+                        temp = temp.next
+                self.saldo -= total_harga
+                print("Lampu Berhasil Dibeli")
+                print("Saldo Anda Sekarang: Rp", format(self.saldo, ','))
+                input("Tekan Enter Untuk Kembali")
+                os.system("cls")
+            else:
+                print("Transaksi Dibatalkan")
+                input("Tekan Enter Untuk Kembali")
+                os.system("cls")
+        else:
+            print("Saldo Anda Tidak Cukup")
+
+    def isi_saldo(self, saldo):
+        self.saldo += saldo
+        print("Saldo Berhasil Ditambahkan")
+        print("Saldo Anda Sekarang: Rp", format(self.saldo, ','))
+        input("Tekan Enter Untuk Kembali")
+        os.system("cls")
+
+    def cek_saldo(self):
+        print("| Saldo Anda: Rp", format(self.saldo, ',') )
+
+lampu = LinkedListLampu()
+lampu.tambah_lampu(1, "Lampu LED", 30000, 10)
+lampu.tambah_lampu(2, "Lampu Neon", 50000, 40)
+lampu.tambah_lampu(3, "Lampu Taman", 75000, 20)
+lampu.tambah_lampu(4, "Lampu Tidur", 50000, 15)
+lampu.tambah_lampu(5, "Lampu Belajar", 100000, 10)
+
+def menu_admin(lampu):
+    os.system("cls")
+    while True:
+        print("----------------------------------------------------")
+        print("|                  Menu Admin                      |")
+        print("----------------------------------------------------")
+        print("| 1. Tambah Lampu                                  |")
+        print("| 2. Hapus Lampu                                   |")
+        print("| 3. Edit Lampu                                    |")
+        print("| 4. Tampilkan Lampu                               |")
+        print("| 5. Logout                                        |")
+        print("----------------------------------------------------")
+        pilihan = input("Pilih Menu: ")
+        if pilihan == "1":
+            id_lampu = int(input("ID Lampu: "))
+            nama_lampu = input("Nama Lampu: ")
+            harga = int(input("Harga: "))
+            stok = int(input("Stok: "))
+            lampu.tambah_lampu(id_lampu, nama_lampu, harga, stok)
+        elif pilihan == "2":
+            id_lampu = int(input("ID Lampu: "))
+            lampu.hapus_lampu(id_lampu)
+        elif pilihan == "3":
+            id_lampu = int(input("ID Lampu: "))
+            nama_lampu = input("Nama Lampu: ")
+            harga = int(input("Harga: "))
+            stok = int(input("Stok: "))
+            lampu.edit_lampu(id_lampu, nama_lampu, harga, stok)
+        elif pilihan == "4":
+            lampu.tampilkan_lampu()
+        elif pilihan == "5":
+            login()
+
+def menu_pelanggan(lampu): 
+    os.system("cls")
+    pelanggan = Pelanggan()
+    while True:
+        print("-------------------------------------------------")
+        print("|                   Toko Lampu                  |")
+        print("-------------------------------------------------")
+        pelanggan.cek_saldo()  
+        print("| 1. Beli Lampu                                 |")
+        print("| 2. Isi Saldo                                  |")
+        print("| 3. Logout                                     |")
+        print("-------------------------------------------------")
+        pilihan = input("Pilih Menu: ")
+        if pilihan == "1":
+            os.system("cls")
+            lampu.tampilkan_lampu()
+            lampu_beli = {}
+            while True:
+                id_lampu = int(input("Pilih ID Lampu (0 untuk selesai): "))
+                if id_lampu == 0:
+                    break
+                else:
+                    jumlah = int(input("Jumlah: "))
+                    if id_lampu in lampu_beli:
+                        lampu_beli[id_lampu] += jumlah
+                    else:
+                        lampu_beli[id_lampu] = jumlah
+            if lampu_beli:
+                pelanggan.beli_lampu(lampu_beli)
+        elif pilihan == "2":
+            saldo = int(input("Jumlah Saldo: "))
+            pelanggan.isi_saldo(saldo)
+        elif pilihan == "3":
+            login()
+
+def jam_operasional():
+    sekarang = datetime.datetime.now().time()
+    buka = datetime.time(9, 0, 0)
+    tutup = datetime.time(17, 0, 0)
+    return buka <= sekarang <= tutup
+
+def login():
+    os.system("cls")
+    if not jam_operasional():
+        print("----------------------------------------------------")
+        print("|        Maaf, Toko Lampu Dzaky sedang tutup       |")
+        print("|  Silahkan datang kembali pada jam 09.00 - 17.00  |")
+        print("----------------------------------------------------")
+        return
+    while True:
+        print("O----------------------------------------O")
+        print("O -⌈Selamat Datang di Toko Lampu Dzaky⌉- O")
+        print("O  ⌋         TERANGNYA OOYY           ⌊  O")
+        print("O----------------------------------------O")
+        print("|  Silahkan Login Terlebih Dahulu")
+        username = input("|  Masukkan Username: ")
+        password = getpass.getpass("|  Masukkan Password: ")
+        if username == "admin" and password == "123":
+            menu_admin(lampu)
+        elif username == "beli" and password == "123":
+            menu_pelanggan(lampu)
+        else:
+            print("Username atau Password Salah")
+            login()
+
+if __name__ == "__main__":
+    login()
